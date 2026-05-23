@@ -10,7 +10,7 @@ library(rstatix)
 pfam <- read.table("demodata/pfam_gene_clean.tsv", sep = "\t", stringsAsFactors = FALSE)
 colnames(pfam) <- c("transcript", "pfam", "domain")
 
-tpm <- read.table("demodata/all_tpm.txt", sep = "\t", header = TRUE)
+tpm <- read.table("demodata/all_tpm_demo.txt", sep = "\t", header = TRUE)
 colnames(tpm)[1] <- "transcript"
 
 
