@@ -112,7 +112,6 @@ Transcript lengths were calculated using seqkit:
 seqkit fx2tab -n -l transcripts_clean.fasta > transcript_lengths.tsv
 ```
 
-# вставить про all_gene_trans
 Transcript lengths were then combined with Trinity gene-transcript mapping information `all_gene_trans_map.txt`: 
 
 ```bash
