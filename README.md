@@ -262,6 +262,15 @@ Recommended:
 
 The all-vs-all BLAST step is the most computationally intensive.
 
+### Demo TPM dataset
+
+It must be noted that due to the large size of the original TPM matrix, the repository contains a reduced demo version of `all_tpm.txt` intended for testing and reproducibility of the analysis pipeline.  
+
+The demo dataset includes a subset of transcripts from all three studied species (*A. marina*, *P. dumerilii* and *P. elegans*), selected based on expression variability and TPM values in order to preserve representative anterior–posterior expression patterns
+
+But of course all figures and conclusions were made with full data.
+
+
 ## Results
 
 #### Spatial expression pattern heatmaps
