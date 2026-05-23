@@ -215,27 +215,40 @@ Only domain hits with i-Evalue < 1e-10 were retained.
 
 **Output:**  `pfam_hits.tsv`
 
-### Step 7. Spatial expression analysis (??????)
+### Step 7. Spatial expression analysis
+
+TPM expression matrices were merged with Pfam domain annotations and separated by species. 
+Expression values were normalized using row-wise z-score transformation. 
+Transcripts were clustered according to their anterior–posterior expression profiles using k-means clustering, 
+and heatmaps were generated to visualize spatial expression patterns across body segments. 
+Pfam domains enriched within individual clusters were additionally summarized and visualized using enrichment barplots.
+
+### Step 8. Enrichment analysis
+
+Comparative heatmaps were generated for conserved Pfam domains shared between all three species. 
+Separate analyses were performed for DUF (Domains of Unknown Function) proteins and regeneration-associated domains. 
+Candidate regeneration-related transcripts were selected based on Pfam annotations linked to:
+
+- signaling pathways, 
+
+- transcription factors, 
+
+- chromatin remodeling, 
+
+- developmental regulation.
 
 
-
-### Step 8. Enrichment analysis  (??????)
-
-
-## Software used - пофиксить версии
+## Software used
 
 | Tool | Version | Purpose |
 |---|---|---|
-| BLAST+ | 2.15 | all-vs-all similarity search |
-| seqkit | 2.8 | FASTA processing |
-| TransDecoder | 5.7 | ORF prediction |
-| DIAMOND | 2.1 | protein annotation |
+| BLAST+ | 2.16 | all-vs-all similarity search |
+| seqkit | 2.10 | FASTA processing |
+| TransDecoder | 5.7.1 | ORF prediction |
+| DIAMOND | 2.1.21 | protein annotation |
 | HMMER | 3.4 | Pfam domain search |
-| CD-HIT | 4.8 | redundancy reduction |
-| R | 4.4 | statistics and visualization |
-
-
-
+| CD-HIT | 4.8.1 | redundancy reduction |
+| R | 4.4.2 | statistics and visualization |
 
 
 ## System requirements
@@ -249,12 +262,88 @@ Recommended:
 
 The all-vs-all BLAST step is the most computationally intensive.
 
+### Demo TPM dataset
+
+It must be noted that due to the large size of the original TPM matrix, the repository contains a reduced demo version of `all_tpm.txt` intended for testing and reproducibility of the analysis pipeline.  
+
+The demo dataset includes a subset of transcripts from all three studied species (*A. marina*, *P. dumerilii* and *P. elegans*), selected based on expression variability and TPM values in order to preserve representative anterior–posterior expression patterns
+
+But of course all figures and conclusions were made with full data.
+
+
 ## Results
 
-## Conclusions
+#### Spatial expression pattern heatmaps
+
+Heatmaps revealed clear species-specific anterior–posterior expression patterns among regulatory-associated transcripts.
+
+- *P. dumerilii* demonstrated strong bipolar expression gradients and pronounced anterior–posterior regionalization.
+
+- *P. elegans* showed more mosaic and heterogeneous spatial organization with reduced AP compartmentalization.
+
+- *A. marina* exhibited strong downregulation of transcripts in posterior body segments.
+
+Representative heatmaps are shown in: `results/heatmaps/comparative_regeneration_associated.png`
+
+<p align="center">
+  <img src="results/heatmaps/comparative_regeneration_associated.png" width="500">
+</p>
+
+Also see figures with clusterisation for all species:
+
+- `results/heatmaps/reg_associated_domains_amar.png`
+
+- `results/heatmaps/reg_associated_domains_pdum.png`
+
+- `results/heatmaps/reg_associated_domains_pele.png`
+
+Domains that were included in each cluster are provided in `results/tables/regen_cluster_domains_*`
+
+It is worth attention that common DUFs (Domains of Unknown Function) showed similar patterns, see here:
+
+- `results/heatmaps/DUF_domains_comparative.png`
+
+<p align="center">
+  <img src="results/heatmaps/DUF_domains_comparative.png" width="500">
+</p>
+
+
+#### Spatial expression pattern metrics
+
+Regulatory-associated transcripts in *P. dumerilii* and *A. marina* demonstrated significantly higher entropy values compared to background transcripts. 
+In *P. dumerilii*, regulatory transcripts additionally showed lower total variation, indicating smoother spatial expression gradients.
+
+Metric distributions and statistical analyses are provided in: `results/statistic_figures` and `scripts/statistics.R`
+
+
+#### AP-index enrichment
+
+Anterior-biased transcripts were enriched in domains involved in protein-protein interactions (LRR and 7tm).
+Posterior-biased transcripts across all three annelid species are enriched in zf-C2H2 domains.
+
+<p align="center">
+  <img src="results/statistic_figures/AP_index_most_sig_domains.png" width="500">
+</p>
+
+Bipolar expressed domains (both anterior- and posterior-biased) are most abundant in *P. dumerilii*.
+
+<p align="center">
+  <img src="results/statistic_figures/fractions_ant_post_bi_transcripts.png" width="500">
+</p>
+
+
+## Conclusion
+
+- Spatial organization of unannotated transcripts largely matches patterns observed for annotated genes.
+
+- Arenicola marina shows strong tail downregulation, consistent with an inactive growth zone and limited posterior regeneration.
+
+- Pygospio elegans exhibits the fewest bipolar transcripts and the most mosaic patterning, while Platynereis dumerilii displays smooth polarized AP gradients.
+
+- Posterior-biased transcripts across all three annelid species are enriched in zf-C2H2 domains
+
 
 ## References
-
 
 Platova, S.E., Poliushkevich, L.O., Starunova, Z.I. et al. Transcriptomic analysis of three annelid species: looking for markers of positional information. BMC Genomics 27, 392 (2026). https://doi.org/10.1186/s12864-026-12671-5
 
