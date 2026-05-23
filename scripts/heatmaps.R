@@ -54,7 +54,7 @@ SPECIES_ORDER <- c("Pele", "Pdum", "Amar")
 pfam <- read.table("demodata/pfam_gene_clean.tsv", sep="\t", stringsAsFactors=FALSE,
                    col.names=c("geneID","pfam","domain"))
 
-tpm_raw <- read.table("demodata/all_tpm.txt", sep="\t", header=TRUE)
+tpm_raw <- read.table("demodata/all_tpm_demo.txt", sep="\t", header=TRUE)
 colnames(tpm_raw)[1] <- "geneID"
 colnames(tpm_raw)[2:13] <- segment_labels
 tpm <- tpm_raw[, c("geneID", segment_labels)]
