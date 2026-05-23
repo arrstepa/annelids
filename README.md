@@ -215,11 +215,27 @@ Only domain hits with i-Evalue < 1e-10 were retained.
 
 **Output:**  `pfam_hits.tsv`
 
-### Step 7. Spatial expression analysis (??????)
+### Step 7. Spatial expression analysis
 
+TPM expression matrices were merged with Pfam domain annotations and separated by species. 
+Expression values were normalized using row-wise z-score transformation. 
+Transcripts were clustered according to their anterior–posterior expression profiles using k-means clustering, 
+and heatmaps were generated to visualize spatial expression patterns across body segments. 
+Pfam domains enriched within individual clusters were additionally summarized and visualized using enrichment barplots.
 
+### Step 8. Enrichment analysis
 
-### Step 8. Enrichment analysis  (??????)
+Comparative heatmaps were generated for conserved Pfam domains shared between all three species. 
+Separate analyses were performed for DUF (Domains of Unknown Function) proteins and regeneration-associated domains. 
+Candidate regeneration-related transcripts were selected based on Pfam annotations linked to:
+
+- signaling pathways, 
+
+- transcription factors, 
+
+- chromatin remodeling, 
+
+- developmental regulation.
 
 
 ## Software used - пофиксить версии
