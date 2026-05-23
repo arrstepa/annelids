@@ -1,5 +1,3 @@
-# Libraries
-
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -9,18 +7,10 @@ library(rstatix)
 
 # Load data
 
-pfam <- read.table(
-  "demodata/pfam_gene_clean.tsv",
-  sep = "\t",
-  stringsAsFactors = FALSE
-)
+pfam <- read.table("demodata/pfam_gene_clean.tsv", sep = "\t", stringsAsFactors = FALSE)
 colnames(pfam) <- c("transcript", "pfam", "domain")
 
-tpm <- read.table(
-  "demodata/all_tpm.txt",
-  sep = "\t",
-  header = TRUE
-)
+tpm <- read.table("demodata/all_tpm.txt", sep = "\t", header = TRUE)
 colnames(tpm)[1] <- "transcript"
 
 
@@ -34,8 +24,8 @@ positions <- seq_len(ncol(expr_matrix))
 # Anterio-posterior pattern metrics
 
 # Shannon entropy of the expression profile, normalized to [0, 1]:
-### High entropy value means expression spread evenly across segments (smooth gradient).
-### Low entropy value means expression concentrated in few segments (localized).
+### High entropy value means expression spread evenly across segments (smooth gradient)
+### Low entropy - concentrated in few segments (localized)
 
 calc_entropy <- function(x) {
   if (sum(x) == 0) return(NA)
@@ -126,9 +116,10 @@ df_with_tpm <- inner_join(metrics, pfam, by = "transcript")
 df_with_tpm$species <- sub("_.*", "", df_with_tpm$transcript)
 
 
-species_levels <- c("Pele", "Pdum", "Amar") # in order of regenerative potential
 
-metrics$species     <- factor(metrics$species, levels = species_levels)
+species_levels <- c("Pele", "Pdum", "Amar")  # we put species here in order of regenerative potential
+
+metrics$species <- factor(metrics$species, levels = species_levels)
 df_with_tpm$species <- factor(df_with_tpm$species, levels = species_levels)
 
 
@@ -137,12 +128,10 @@ df_with_tpm$species <- factor(df_with_tpm$species, levels = species_levels)
 kruskal.test(entropy ~ species, data = metrics)
 pairwise.wilcox.test(metrics$entropy, metrics$species, p.adjust.method = "BH")
 
-metrics %>%
-  wilcox_effsize(entropy ~ species,
+metrics %>% wilcox_effsize(entropy ~ species,
                  comparisons = list(c("Amar", "Pele"), c("Pdum", "Pele")))
 
-metrics %>%
-  wilcox_effsize(AP_index ~ species,
+metrics %>% wilcox_effsize(AP_index ~ species,
                  comparisons = list(c("Amar", "Pele"), c("Pdum", "Pele")))
 
 
@@ -170,17 +159,15 @@ regulatory_ids <- df_with_tpm %>%
   pull(transcript) %>%
   unique()
 
-
 metrics$reg_group <- ifelse(
   metrics$transcript %in% regulatory_ids,
   "Regulatory",
   "Background"
 )
+
 metrics$reg_group <- factor(metrics$reg_group, levels = c("Regulatory", "Background"))
 
 print(table(metrics$species, metrics$reg_group))
-
-
 
 # Regulatory-associated transcripts are less abundant and we must balance them:
 
@@ -236,15 +223,15 @@ regulatory_effsize <- lapply(core_metrics, function(metric) {
 }) %>% bind_rows()
 
 
-AP_INDEX_QUANTILE <- 0.90  # threshold for highly polarized
-MIN_DOMAIN_COUNT      <- 20    # in order to skip rare domains
+AP_INDEX_QUANTILE <- 0.90  # treshold for highly polarized
+MIN_DOMAIN_COUNT <- 20    # in order to skip rare domains we filter them
 
-# highly polarized transcripts within each species
+# anterior-biased and posterior-biased transcripts within each species
+
 df_with_tpm <- df_with_tpm %>%
   group_by(species) %>%
-  mutate(
-    ap_threshold = quantile(AP_index, AP_INDEX_QUANTILE, na.rm = TRUE),
-    high_pol      = AP_index > ap_threshold
+  mutate(ap_threshold = quantile(AP_index, AP_INDEX_QUANTILE, na.rm = TRUE),
+    high_pol = AP_index > ap_threshold
   ) %>%
   ungroup()
 
@@ -278,8 +265,6 @@ enrichment_for_species <- function(df_sp) {
   res
 }
 
-
-
 enrichment <- df_with_tpm %>%
   group_split(species) %>%
   lapply(enrichment_for_species) %>%
@@ -288,19 +273,14 @@ enrichment <- df_with_tpm %>%
 enrichment$species <- factor(enrichment$species, levels = species_levels)
 
 # Significant domains
+
 sig <- enrichment %>% filter(padj < 0.05)
 
-# Most enriched domains among anterior transcripts
-
+# top enriched or depleted domains
 sig %>% arrange(desc(odds_ratio)) %>% head(15) %>% print()
-
-# Most depleted domains among posterior transcripts
-
 sig %>% arrange(odds_ratio) %>% head(15) %>% print()
 
-# Volcano plot per species: log2(odds ratio) vs -log10(padj).
-
-# Right side = enriched among polarized; left side = depleted.
+# Volcano plot per species: right side enriched among anterior-biased, left side - among posterior-biased
 
 top <- sig %>% filter(abs(log2(odds_ratio)) > 1)
 
@@ -324,39 +304,21 @@ ggplot(sig, aes(x = log2(odds_ratio), y = -log10(padj))) +
 
 # Now we can also calculate fractions of anterior/posterior and bipolar expressed regeneration-associated transcriptes in all species
 
-regen_tpm <- metrics %>%
-  filter(reg_group == "Regulatory")
+regen_tpm <- metrics %>% filter(reg_group == "Regulatory")
 
-regen_tpm$species <- factor(
-  regen_tpm$species,
-  levels = c("Pele", "Pdum", "Amar")
-)
+regen_tpm$species <- factor(regen_tpm$species, levels = c("Pele", "Pdum", "Amar"))
 
 # Mean expression at body ends
 
-regen_tpm$anterior <- apply(
-  regen_tpm[, expr_cols],
-  1,
-  function(x) mean(x[1:2])
-)
+regen_tpm$anterior <- apply(regen_tpm[, expr_cols], 1, function(x) mean(x[1:2]))
 
-regen_tpm$posterior <- apply(
-  regen_tpm[, expr_cols],
-  1,
-  function(x) mean(
-    x[(length(x)-1):length(x)]
-  )
-)
+regen_tpm$posterior <- apply(regen_tpm[, expr_cols], 1, function(x) mean(x[(length(x)-1):length(x)]))
 
 # Relative expression normalized by maximal TPM
 
-regen_tpm$anterior_rel <-
-  regen_tpm$anterior /
-  (regen_tpm$max_tpm + 1e-12)
+regen_tpm$anterior_rel <- regen_tpm$anterior / (regen_tpm$max_tpm + 1e-12)
 
-regen_tpm$posterior_rel <-
-  regen_tpm$posterior /
-  (regen_tpm$max_tpm + 1e-12)
+regen_tpm$posterior_rel <- regen_tpm$posterior / (regen_tpm$max_tpm + 1e-12)
 
 # Spatial classification threshold
 
@@ -364,32 +326,15 @@ thr <- 0.5
 
 regen_tpm$pattern <- "other"
 
-regen_tpm$pattern[
-  regen_tpm$anterior_rel > thr &
-    regen_tpm$posterior_rel > thr
-] <- "bipolar"
+regen_tpm$pattern[regen_tpm$anterior_rel > thr & regen_tpm$posterior_rel > thr] <- "bipolar"
 
-regen_tpm$pattern[
-  regen_tpm$anterior_rel > thr &
-    regen_tpm$posterior_rel <= thr
-] <- "anterior_only"
+regen_tpm$pattern[regen_tpm$anterior_rel > thr & regen_tpm$posterior_rel <= thr] <- "anterior_only"
 
-regen_tpm$pattern[
-  regen_tpm$anterior_rel <= thr &
-    regen_tpm$posterior_rel > thr
-] <- "posterior_only"
+regen_tpm$pattern[regen_tpm$anterior_rel <= thr & regen_tpm$posterior_rel > thr] <- "posterior_only"
 
 # Fraction of spatial expression classes
 
-plot_df <- as.data.frame(
-  prop.table(
-    table(
-      regen_tpm$species,
-      regen_tpm$pattern
-    ),
-    margin = 1
-  )
-)
+plot_df <- as.data.frame(prop.table(table(regen_tpm$species, regen_tpm$pattern), margin = 1))
 
 colnames(plot_df) <- c(
   "species",
